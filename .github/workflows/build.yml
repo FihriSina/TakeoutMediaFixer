@@ -1,0 +1,54 @@
+name: Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  windows-build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Download verified ExifTool
+        shell: pwsh
+        run: ./scripts/Get-ExifTool.ps1
+
+      - name: Restore
+        run: dotnet restore TakeoutMediaFixer.sln
+
+      - name: Build
+        run: dotnet build TakeoutMediaFixer.sln --configuration Release --no-restore
+
+      - name: Smoke tests
+        run: dotnet run --project tests/TakeoutMediaFixer.SmokeTests/TakeoutMediaFixer.SmokeTests.csproj --configuration Release --no-build
+
+      - name: Publish portable Windows package
+        shell: pwsh
+        run: |
+          $out = "artifacts/TakeoutMediaFixer-win-x64"
+          dotnet publish src/TakeoutMediaFixer/TakeoutMediaFixer.csproj --configuration Release --runtime win-x64 --self-contained true --output $out -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+          Copy-Item README.md $out
+          Copy-Item LICENSE $out
+          Copy-Item THIRD_PARTY_NOTICES.md $out
+          $zip = "artifacts/TakeoutMediaFixer-win-x64.zip"
+          Compress-Archive -Path "$out/*" -DestinationPath $zip -CompressionLevel Optimal
+          $hash = (Get-FileHash -Path $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  TakeoutMediaFixer-win-x64.zip" | Set-Content -Path "artifacts/SHA256SUMS.txt" -Encoding utf8
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TakeoutMediaFixer-win-x64
+          path: |
+            artifacts/TakeoutMediaFixer-win-x64.zip
+            artifacts/SHA256SUMS.txt
+          if-no-files-found: error

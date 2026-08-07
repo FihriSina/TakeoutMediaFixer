@@ -1,0 +1,13 @@
+.vs/
+.idea/
+bin/
+obj/
+artifacts/
+TestResults/
+*.user
+*.suo
+*.cache
+*.log
+src/TakeoutMediaFixer/tools/exiftool.exe
+src/TakeoutMediaFixer/tools/exiftool_files/
+src/TakeoutMediaFixer/tools/EXIFTOOL-README.txt
