@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using Microsoft.Win32;
 using TakeoutMediaFixer.Core.Models;
@@ -77,7 +78,8 @@ public partial class MainWindow : Window
 
     private void OpenOutputButton_Click(object sender, RoutedEventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(_outputDirectory) || !Directory.Exists(_outputDirectory))
+        var outputDirectory = _outputDirectory;
+        if (string.IsNullOrWhiteSpace(outputDirectory) || !Directory.Exists(outputDirectory))
         {
             return;
         }
@@ -85,7 +87,7 @@ public partial class MainWindow : Window
         Process.Start(new ProcessStartInfo
         {
             FileName = "explorer.exe",
-            ArgumentList = { _outputDirectory },
+            ArgumentList = { outputDirectory },
             UseShellExecute = true
         });
     }
