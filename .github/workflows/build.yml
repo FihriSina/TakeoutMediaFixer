@@ -11,10 +11,10 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
 
@@ -45,7 +45,7 @@ jobs:
           "$hash  TakeoutMediaFixer-win-x64.zip" | Set-Content -Path "artifacts/SHA256SUMS.txt" -Encoding utf8
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: TakeoutMediaFixer-win-x64
           path: |
